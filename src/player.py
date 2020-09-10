@@ -3,10 +3,10 @@
 
 from room import Room
 
-class Player:
-    def __init__(self, name, currentRoom):
+class Player(Room):
+    def __init__(self, name, rName, information):
+        super().__init__(rName, information)
         self.name = name
-        self.currentRoom = currentRoom
         self.prevRoom = []
         def previous_rooms(self, room):
             history = Room(room, self)

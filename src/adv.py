@@ -1,5 +1,6 @@
 from room import Room
 from player import Player
+import textwrap
 # Declare all the rooms
 
 room = {
@@ -50,10 +51,89 @@ room['treasure'].s_to = room['narrow']
 #
 # If the user enters "q", quit the game.
 
-name = input("Please enter your name: ")
-r = input("Choose a room (): ")
+p1 = None
+r  = None
+def print_start(p1):
+    print(f'Hello {p1.name}, welcome to your new adventure. You are currently {p1.rName}, {p1.information} ') 
+
+def print_room(p1):
+    wrapper = textwrap.TextWrapper(width=40)
+    info = wrapper.wrap(text=p1.information) 
+    print(f'{p1.name}, you are now in the {p1.rName}')
+    for element in info: 
+        print(f'\033 {element} \033') 
+
+def room_input():
+    global r
+    r = input("Choose your destination [n] North [e] East [s] South [w] West [q] quit: ")
+
+def get_name():
+    name = input("Please enter your name: ")
+    p1 = Player(name, room['outside'].rName, room["outside"].information)
+    print_start(p1)
+    global r
+    def move():
+        nonlocal p1
+        room_input()
+        global r
+        while not r == "q":
+            # User chooses North to Foyer
+            if r == "n":
+                p1.rName = room['outside'].n_to.rName
+                p1.information = room['outside'].n_to.information
+                print_room(p1)
+                room_input()
+                foyer = room['foyer']
+                narrow = room['narrow']
+                # User Chooses South goes from Foyer to Outside
+                if r == "s":
+                    p1.rName = foyer.s_to.rName
+                    p1.information = foyer.s_to.information
+                    print_room(p1)
+                    room_input()
+                elif r == "n":
+                     # User Chooses North goes from Foyer to Overlook
+                    p1.rName = foyer.n_to.rName
+                    p1.information = foyer.n_to.information
+                    print_room(p1)
+                    if r == "s":
+                         # User Chooses South goes from Overlook to Foyer
+                        p1.rName = room['overlook'].s_to.rName
+                        p1.information = room['overlook'].s_to.information
+                        print_room(p1)
+                        room_input()
+                    else:
+                        print('You cannot go in that direction!')
+                elif r == "e":
+                    # User Chooses East goes from Foyer to Narrow
+                    p1.rName = foyer.e_to.rName
+                    p1.information = foyer.e_to.information
+                    print_room(p1)
+                    room_input()
+                    if r == "w":
+                        p1.rName = narrow.w_to.rName
+                        p1.information = narrow.w_to.information
+                        print_room(p1)
+                        room_input()
+                    elif r == "n":
+                        p1.rName = narrow.n_to.rName
+                        p1.information = narrow.n_to.information
+                        print_room(p1)
+                        room_input()
+                        if r == "s":
+                            p1.rName = room['treasure'].s_to.rName
+                            p1.information = room['treasure'].s_to.information
+                            print_room(p1)
+                            room_input()
+                else:
+                    print('You cannot go in that direction!')
+                    room_input()
+            else:
+                # print("You cannot go in that direction!")
+                r = input("Choose your destination [n] North [e] East [s] South [w] West [q] quit: ")
+    move()
+get_name()
+# p1 = Player('Tatyana', 'outside')
+# print(p1.name)
 
 
-p1 = Player('Tatyana', 'outside')
-print(p1.name)
-print(p1.currentRoom)
