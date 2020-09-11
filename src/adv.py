@@ -78,8 +78,7 @@ def print_room(p1):
         print(f'\033 {element} \033') 
 
 def item_loop(item, p1, room):
-    print(f"There are {len(item)} items in this room:")
-    print(item)
+    print(f"There are {len(item)} item(s) in this room:")
     for l in item:
         if(bool(l)):
             command = input(f"{l} type 'get item' to add to inventory or 'drop item' to leave in room:")
@@ -87,20 +86,24 @@ def item_loop(item, p1, room):
             for i, j in enumerate(result):
                 if j == "get":
                     p1.add_items(item[i])
-                    room.drop_items(item[0])
+                    room.drop_items(item[i])
                     print(f"you now have {p1.inventory[i].name} in your inventory")
                     print(f"There are now {len(item)} items in this room:")
                 # if j == "drop":
                 #     p1.remove("item")
                 #     print("you dropped an item")
             
-
 def room_input():
     global r
     r = input("Choose your destination [n] North [e] East [s] South [w] West [q] quit: ")
 
-def pickup_items(p1, item):
-    print(f'{p1.name}, you added {item} to your inventory')
+def player_story(item, p1, room, d):
+    p1.rName = d.rName
+    p1.information = d.information
+    print_room(p1)
+    item_loop(item, p1, room)
+    room_input()
+
 
 def get_name():
     name = input("Please enter your name: ")
@@ -108,72 +111,45 @@ def get_name():
     print_start(p1)
     global r
     def move():
+        foyer = room['foyer']
+        narrow = room['narrow']
+        outside = room['outside']
+        overlook = room['overlook']
+        treasure = room['treasure']
         nonlocal p1
         room_input()
         global r
         while not r == "q":
             # User chooses North to Foyer
             if r == "n":
-                foyer = room['foyer']
-                narrow = room['narrow']
-                p1.rName = room['outside'].n_to.rName
-                p1.information = room['outside'].n_to.information
-                print_room(p1)
-                item_loop(foyer.items, p1, room['outside'])
-                room_input()
-                # User Chooses South goes from Foyer to Outside
+                player_story(foyer.items, p1, foyer, outside.n_to)
                 if r == "s":
-                    p1.rName = foyer.s_to.rName
-                    p1.information = foyer.s_to.information
-                    print_room(p1)
-                    item_loop(foyer.s_to.items)
-                    room_input()
+                    player_story(outside.items, p1, outside, foyer.s_to)
                 elif r == "n":
                      # User Chooses North goes from Foyer to Overlook
-                    p1.rName = foyer.n_to.rName
-                    p1.information = foyer.n_to.information
-                    print_room(p1)
-                    item_loop(foyer.n_to.items)
-                    room_input()
+                    player_story(overlook.items, p1, overlook, foyer.n_to)
                     if r == "s":
                          # User Chooses South goes from Overlook to Foyer
-                        p1.rName = room['overlook'].s_to.rName
-                        p1.information = room['overlook'].s_to.information
-                        print_room(p1)
-                        item_loop(room['overlook'].s_to.items)
-                        room_input()
+                        player_story(foyer.items, p1, foyer, overlook.s_to)
                     else:
                         print('You cannot go in that direction!')
                 elif r == "e":
                     # User Chooses East goes from Foyer to Narrow
-                    p1.rName = foyer.e_to.rName
-                    p1.information = foyer.e_to.information
-                    print_room(p1)
-                    item_loop(foyer.e_to.items)
-                    room_input()
+                    player_story(narrow.items, p1, narrow, foyer.e_to)
                     if r == "w":
-                        p1.rName = narrow.w_to.rName
-                        p1.information = narrow.w_to.information
-                        print_room(p1)
-                        item_loop(narrow.w_to.items)
-                        room_input()
+                        # User Chooses West goes from Narrow to Foyer
+                        player_story(foyer.items, p1, foyer, narrow.w_to)
                     elif r == "n":
-                        p1.rName = narrow.n_to.rName
-                        p1.information = narrow.n_to.information
-                        print_room(p1)
-                        item_loop(narrow.n_to.items)
-                        room_input()
+                        # User Chooses North goes from Narrow to Treasure
+                        player_story(treasure.items, p1, treasure, narrow.n_to)
                         if r == "s":
-                            p1.rName = room['treasure'].s_to.rName
-                            p1.information = room['treasure'].s_to.information
-                            print_room(p1)
-                            item_loop(room['treasure'].s_to.items)
-                            room_input()
+                            # User Chooses South goes from Treasure to Narrow
+                            player_story(narrow.items, p1, narrow, treasure.s_to)
                 else:
                     print('You cannot go in that direction!')
                     room_input()
             else:
-                # print("You cannot go in that direction!")
+                print("You cannot go in that direction!")
                 r = input("Choose your destination [n] North [e] East [s] South [w] West [q] quit: ")
     move()
 get_name()
